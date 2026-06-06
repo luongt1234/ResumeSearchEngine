@@ -1,0 +1,35 @@
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+
+    env_file:
+      - minio.env
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    volumes:
+      - minio-data:/data
+
+    command: server /data --console-address ":9001"
+
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    restart: unless-stopped
+
+    env_file:
+      - kafka.env
+
+    ports:
+      - "9092:9092"
+
+    volumes:
+      - kafka-data:/kafka
+
+volumes:
+  minio-data:
+  kafka-data:

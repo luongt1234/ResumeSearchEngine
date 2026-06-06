@@ -1,0 +1,67 @@
+# ==========================================
+# 1. CẤU HÌNH SERVER & THÔNG TIN DỊCH VỤ
+# ==========================================
+server:
+  port: 8081
+
+spring:
+  application:
+    name: resume-service
+
+  # ==========================================
+  # 2. CẤU HÌNH FILE UPLOAD
+  # ==========================================
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 12MB
+
+  # ==========================================
+  # 3. CẤU HÌNH DATABASE (MYSQL)
+  # ==========================================
+  datasource:
+    url: jdbc:mysql://localhost:3306/resume_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # ==========================================
+  # 3. CẤU HÌNH KAFKA PRODUCER
+  # ==========================================
+  kafka:
+    # Trỏ tới container Kafka đang chạy bên ngoài
+    bootstrap-servers: localhost:9092
+    producer:
+      # Mã hóa dữ liệu thành chuỗi (String) trước khi đẩy qua mạng
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      retries: 3
+      properties:
+        # Cơ chế Idempotence: Đảm bảo không bị gửi trùng 1 Job 2 lần nếu rớt mạng
+        enable.idempotence: true
+
+# ==========================================
+# 4. CẤU HÌNH MINIO (LƯU TRỮ FILE GỐC)
+# ==========================================
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: cv-uploads
+
+# ==========================================
+# 5. CẤU HÌNH BIẾN TÙY CHỈNH (CUSTOM VARIABLES)
+# ==========================================
+app:
+  kafka:
+    topic:
+      cv-process: process_cv_topic

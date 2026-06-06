@@ -1,0 +1,60 @@
+# Java / Maven
+**/target/
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+build/
+**/build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IDEs & Editors
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+.springBeans
+.sts4-cache
+.apt_generated
+
+# OS Files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Python (in case of Python microservices)
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*.pyo
+**/*.pyd
+.venv/
+venv/
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Node.js (in case of Node.js services)
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker & Environment Files
+.env
+.env.local
+.env.*.local
+!kafka.env
+!minio.env
+
+# General Logs & Temp files
+*.log
+tmp/
+temp/
