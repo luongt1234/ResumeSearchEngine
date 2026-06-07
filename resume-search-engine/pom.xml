@@ -25,6 +25,7 @@
     <modules>
         <module>resume-service</module>
         <module>api-gateway</module>
+        <module>auth-service</module>
 <!--        <module>candidate-service</module>-->
 <!--        <module>search-service</module>-->
     </modules>

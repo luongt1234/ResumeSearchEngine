@@ -20,11 +20,15 @@ public class GatewayRouteConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder, JwtAuthenticationFilter jwtFilter) {
         return builder.routes()
-                // 0. [PUBLIC] Tuyến đường Health Check - KHÔNG qua JWT filter
-                //    Dùng để kiểm tra resume-service qua Gateway mà không cần Bearer Token
+                // 0. [PUBLIC] Tuyến đường xử lý xác thực
+                .route("resume-service-auth", r -> r
+                        .path("/api/v1/auth/**")
+                        .uri("http://localhost:8081")
+                )
+                // 1. [PUBLIC] Tuyến đường Health Check - KHÔNG qua JWT filter
                 .route("resume-service-health", r -> r
-                        .path("/api/v1/cv/health")  // Khớp chính xác endpoint health
-                        .uri("http://localhost:8081")  // Forward thẳng, không qua jwtFilter
+                        .path("/api/v1/cv/health")
+                        .uri("http://localhost:8082")
                 )
                 // 1. [PROTECTED] Tuyến đường xử lý CV (gửi sang resume-service)
                 .route("resume-service-route", r -> r
@@ -35,19 +39,19 @@ public class GatewayRouteConfig {
 //                                        .setRateLimiter(redisRateLimiter()) // Mắt xích 2: Chặn spam API bằng Redis
 //                                        .setKeyResolver(userKeyResolver()))
                         )
-                        .uri("http://localhost:8081") // Đích đến: Cổng mạng vật lý của resume-service
+                        .uri("http://localhost:8082") // Đích đến: Cổng mạng vật lý của resume-service
                 )
                 // 2. Tuyến đường Tìm kiếm lai (gửi sang search-service)
                 .route("search-service-route", r -> r
                         .path("/api/v1/search/**")
                         .filters(f -> f.filter(jwtFilter))
-                        .uri("http://localhost:8082") // Điều hướng sang search-service
+                        .uri("http://localhost:8083")
                 )
                 // 3. Tuyến đường Quản lý hồ sơ ứng viên (gửi sang candidate-service)
                 .route("candidate-service-route", r -> r
                         .path("/api/v1/candidates/**")
                         .filters(f -> f.filter(jwtFilter))
-                        .uri("http://localhost:8083") // Điều hướng sang candidate-service
+                        .uri("http://localhost:8084")
                 )
                 .build();
     }

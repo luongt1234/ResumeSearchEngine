@@ -6,7 +6,7 @@ import com.luontd.authservice.domain.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", builder = @org.mapstruct.Builder(disableBuilder = true))
 public interface IUserMapper {
     RegisterResponse toResponse(User entity);
 

@@ -54,14 +54,23 @@ public class JwtAuthenticationFilter implements GatewayFilter {
                     .parseClaimsJws(token)
                     .getBody();
 
-            String userId = claims.getSubject();
-            String userRole = claims.get("role", String.class);
+            // Subject = username (theo generate: .setSubject(username))
+            String username = claims.getSubject();
 
-            log.info("[Auth Middleware] Token hợp lệ! UserId: {}, Role: {}", userId, userRole);
+            // Claim "id" = UUID của user (theo generate: .claim("id", userId.toString()))
+            String userId = claims.get("id", String.class);
+
+            // Claim "roles" = List<String> (theo generate: .claim("roles", roles))
+            @SuppressWarnings("unchecked")
+            java.util.List<String> userRoles = claims.get("roles", java.util.List.class);
+            String rolesJoined = (userRoles != null) ? String.join(",", userRoles) : "";
+
+            log.info("[Auth Middleware] Token hợp lệ! UserId: {}, Username: {}, Roles: {}", userId, username, rolesJoined);
 
             ServerHttpRequest mutatedRequest = request.mutate()
-                    .header("X-User-Id", userId)
-                    .header("X-User-Role", userRole)
+                    .header("X-User-Id", userId)          // UUID thực sự của user
+                    .header("X-Username", username)        // Username
+                    .header("X-User-Roles", rolesJoined)  // Danh sách role, phân tách bằng dấu phẩy
                     .build();
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
