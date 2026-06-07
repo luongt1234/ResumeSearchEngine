@@ -2,7 +2,9 @@ package com.luontd.authservice.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.Set;
+
 
 @Entity
 @Table(name = "roles")
@@ -11,11 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Role {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Role extends BaseEntity {
 
     @Column(nullable = false, length = 50, unique = true)
     private String name; // Bắt buộc định dạng dạng: ROLE_ADMIN, ROLE_CANDIDATE
@@ -27,8 +25,12 @@ public class Role {
     @ManyToMany(fetch = FetchType.EAGER) // Eager để khi lấy Role sẽ lấy kèm bộ quyền luôn
     @JoinTable(
             name = "roles_permissions",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
+            joinColumns = @JoinColumn(name = "role_id", columnDefinition = "VARCHAR(36)"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id", columnDefinition = "VARCHAR(36)")
     )
     private Set<Permission> permissions;
+
+    // Inverse side của quan hệ User - Role
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+    private Set<User> users;
 }
