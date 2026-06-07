@@ -73,7 +73,6 @@ public class AuthService implements IAuthService {
 
         // hash password
         String hashedPassword = passwordEncoder.encode(request.getPassword());
-        userEntity.setId(UUID.randomUUID());
         userEntity.setPassword(hashedPassword);
 
         // save user

@@ -3,11 +3,14 @@ package com.luontd.authservice.infrastructure.security;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.stereotype.Service;
+
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
+@Service
 @RequiredArgsConstructor
 public class JwtService {
     private final Key jwtSigningKey;
