@@ -32,7 +32,7 @@ public class GatewayRouteConfig {
                 )
                 // 1. [PROTECTED] Tuyến đường xử lý CV (gửi sang resume-service)
                 .route("resume-service-route", r -> r
-                        .path("/api/v1/cv/**") // Điều kiện định tuyến: Khớp URI Path
+                        .path("/api/v1/cv/**", "/api/v1/batches/**") // Điều kiện định tuyến: Khớp URI Path
                         .filters(f -> f
                                 .filter(jwtFilter) // Mắt xích 1: Chạy qua Middleware xác thực JWT
 //                                .requestRateLimiter(config -> config

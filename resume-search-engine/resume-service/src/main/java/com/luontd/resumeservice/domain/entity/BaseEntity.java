@@ -3,7 +3,9 @@ package com.luontd.resumeservice.domain.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,6 +17,7 @@ public abstract class BaseEntity {
 
     @Id
     @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private UUID id;
 
