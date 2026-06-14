@@ -1,6 +1,8 @@
 package com.luontd.resumeservice.infrastructure.storage;
 
 import com.luontd.resumeservice.application.interfaces.outbound.IFileStoragePort;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +31,25 @@ public class MinioStorageAdapter implements IFileStoragePort {
                 ? originalFileName.substring(originalFileName.lastIndexOf("."))
                 : ".pdf";
 
-            if (extension.equals(".pdf")){
+            if (!extension.equals(".pdf")){
                 log.error("File không đúng định dạng: {}", originalFileName);
                 throw new RuntimeException("Upload file thất bại!");
             }
+
+            // Create bucket if not exists
+            boolean bucketExists = minioClient.bucketExists(
+                    BucketExistsArgs.builder()
+                            .bucket(bucketName)
+                            .build());
+
+            if (!bucketExists) {
+                minioClient.makeBucket(MakeBucketArgs.builder()
+                            .bucket(bucketName)
+                            .build());
+
+                log.info("Bucket created: {}", bucketName);
+            }
+
 
             String newFileName = UUID.randomUUID().toString() + extension;
 
@@ -42,7 +59,7 @@ public class MinioStorageAdapter implements IFileStoragePort {
             minioClient.putObject(
                 PutObjectArgs.builder()
                     .bucket(bucketName)
-                    .object(newFileName)
+                    .object(objectPath)
                     .stream(inputStream, file.getSize(), -1)
                     .contentType(file.getContentType())
                     .build()

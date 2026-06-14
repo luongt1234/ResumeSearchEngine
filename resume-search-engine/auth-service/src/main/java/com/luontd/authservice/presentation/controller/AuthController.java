@@ -7,6 +7,7 @@ import com.luontd.authservice.application.services.dto.RegisterRequest; // Cần
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,26 +22,38 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Map<String, Object>>> login(@RequestBody @Valid LoginRequest request){
-        var result = _authService.login(request);
+        try {
+            var result = _authService.login(request);
 
-        Map<String, Object> data = Map.of(
-                "token", result.getToken(),
-                "loginAt", java.time.Instant.now()
-        );
+            Map<String, Object> data = Map.of(
+                    "token", result.getToken(),
+                    "loginAt", java.time.Instant.now()
+            );
 
-        return ResponseEntity.ok(ApiResponse.success(data, "Đăng nhập thành công"));
+            return ResponseEntity.ok(ApiResponse.success(data, "Đăng nhập thành công"));
+        } catch (Exception e) {
+            log.error("Lỗi khi đăng nhập: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lỗi hệ thống: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Map<String, Object>>> register(@RequestBody @Valid RegisterRequest request){
-        var result = _authService.register(request);
+        try {
+            var result = _authService.register(request);
 
-        Map<String, Object> data = Map.of(
-                "id", result.getId(),
-                "username", result.getUsername(),
-                "message", result.getMessage()
-        );
+            Map<String, Object> data = Map.of(
+                    "id", result.getId(),
+                    "username", result.getUsername(),
+                    "message", result.getMessage()
+            );
 
-        return ResponseEntity.ok(ApiResponse.success(data, "Đăng ký thành công"));
+            return ResponseEntity.ok(ApiResponse.success(data, "Đăng ký thành công"));
+        } catch (Exception e) {
+            log.error("Lỗi khi đăng ký: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lỗi hệ thống: " + e.getMessage()));
+        }
     }
 }
