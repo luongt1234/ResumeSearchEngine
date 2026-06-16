@@ -1,8 +1,8 @@
 package com.luontd.resumeservice.application.services;
 
 import com.luontd.resumeservice.application.interfaces.usecase.IResumeBatchService;
+import com.luontd.resumeservice.application.interfaces.repository.IResumeBatchRepository;
 import com.luontd.resumeservice.domain.entity.ResumeBatch;
-import com.luontd.resumeservice.infrastructure.persistence.IResumeBatchJpaRepository;
 import com.luontd.resumeservice.presentation.dto.ResumeBatchRequest;
 import com.luontd.resumeservice.presentation.dto.ResumeBatchResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ResumeBatchService implements IResumeBatchService {
 
-    private final IResumeBatchJpaRepository batchRepository;
+    private final IResumeBatchRepository batchRepository;
 
     @Override
     @Transactional

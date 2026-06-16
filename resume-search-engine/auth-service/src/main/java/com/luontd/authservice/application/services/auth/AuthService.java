@@ -1,30 +1,29 @@
 package com.luontd.authservice.application.services.auth;
 
 import com.luontd.authservice.application.interfaces.usecase.IAuthService;
+import com.luontd.authservice.application.interfaces.repository.IUserRepository;
+import com.luontd.authservice.application.interfaces.repository.IRoleRepository;
 import com.luontd.authservice.application.mapper.IUserMapper;
 import com.luontd.authservice.application.services.dto.LoginRequest;
 import com.luontd.authservice.application.services.dto.LoginResponse;
 import com.luontd.authservice.application.services.dto.RegisterRequest;
 import com.luontd.authservice.application.services.dto.RegisterResponse;
 import com.luontd.authservice.domain.entity.Role;
-import com.luontd.authservice.infrastructure.persistence.IRoleJpaRepository;
-import com.luontd.authservice.infrastructure.persistence.IUserJpaRepository;
 import com.luontd.authservice.infrastructure.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService implements IAuthService {
-    private final IUserJpaRepository _userRepository;
+    private final IUserRepository _userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService _jwtService;
-    private final IRoleJpaRepository _roleJpaRepository;
+    private final IRoleRepository _roleRepository;
     private final IUserMapper _userMapper;
 
     @Override
@@ -42,7 +41,7 @@ public class AuthService implements IAuthService {
             throw new RuntimeException("Tài khoản hoặc mật khẩu không chính xác");
         }
 
-        var rolesByUser = _roleJpaRepository.findByUsers_Id(user.getId())
+        var rolesByUser = _roleRepository.findByUserId(user.getId())
                 .orElse(Collections.emptyList());
 
         var rolesname = rolesByUser

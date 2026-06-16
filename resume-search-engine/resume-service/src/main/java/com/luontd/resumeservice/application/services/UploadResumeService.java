@@ -2,12 +2,12 @@ package com.luontd.resumeservice.application.services;
 
 import com.luontd.resumeservice.application.interfaces.outbound.IFileStoragePort;
 import com.luontd.resumeservice.application.interfaces.outbound.IResumeEventPublisher;
+import com.luontd.resumeservice.application.interfaces.repository.IResumeBatchRepository;
+import com.luontd.resumeservice.application.interfaces.repository.IResumeRepository;
 import com.luontd.resumeservice.application.interfaces.usecase.IUploadResumeService;
 import com.luontd.resumeservice.domain.entity.Resume;
 import com.luontd.resumeservice.domain.enums.EtlStatus;
 import com.luontd.resumeservice.application.event.ResumeCreatedEvent;
-import com.luontd.resumeservice.infrastructure.persistence.IResumeBatchJpaRepository;
-import com.luontd.resumeservice.infrastructure.persistence.IResumeJpaRepository;
 import com.luontd.resumeservice.utils.UuidUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +21,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UploadResumeService implements IUploadResumeService {
     private final IFileStoragePort _fileStorage;
-    private final IResumeBatchJpaRepository _resumeBatch;
+    private final IResumeBatchRepository _resumeBatch;
     private final IResumeEventPublisher _resumeProducer;
-    private final IResumeJpaRepository _resumeRepository;
+    private final IResumeRepository _resumeRepository;
 
     @Transactional
     @Override
