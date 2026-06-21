@@ -1,16 +1,15 @@
-package com.luontd.resumeservice.infrastructure.storage;
+package com.luontd.etlworkerservice.infrastructure.storage;
 
-import com.luontd.resumeservice.application.interfaces.outbound.IFileStoragePort;
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import com.luontd.etlworkerservice.application.dto.FileStorageDto;
+import com.luontd.etlworkerservice.application.port.out.IFileStoragePort;
+import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -65,7 +64,7 @@ public class MinioStorageAdapter implements IFileStoragePort {
                     .build()
             );
 
-            log.info("Upload file lên MinIO thành công: {}", newFileName);
+            log.info("Upload file lên MinIO thành công: {}", objectPath);
 
             return objectPath;
         } catch (Exception ex){
@@ -80,7 +79,44 @@ public class MinioStorageAdapter implements IFileStoragePort {
     }
 
     @Override
-    public MultipartFile GetFileByFileUrl(String fileUrl) {
-        return null;
+    public FileStorageDto GetFileByFileUrl(String fileUrl) {
+        try{
+            if (fileUrl == null || fileUrl.isBlank()) {
+                throw new RuntimeException("fileUrl không hợp lệ!");
+            }
+
+            String objectPath = fileUrl;
+
+            try (InputStream inputStream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectPath)
+                            .build()
+            )) {
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                byte[] data = new byte[8192];
+                int nRead;
+
+                while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                }
+                buffer.flush();
+
+                byte[] fileBytes = buffer.toByteArray();
+                String fileName = objectPath.substring(objectPath.lastIndexOf("/") + 1);
+
+                return FileStorageDto.builder()
+                        .fileName(fileName)
+                        .originalFileName(fileName)
+                        .contentType("application/pdf")
+                        .fileBytes(fileBytes)
+                        .size(fileBytes.length)
+                        .objectPath(objectPath)
+                        .build();
+            }
+        } catch (Exception ex){
+            log.error("Lỗi khi lấy file từ MinIO", ex.getMessage());
+            throw new RuntimeException("Upload file thất bại!");
+        }
     }
 }
