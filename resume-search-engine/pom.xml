@@ -27,7 +27,8 @@
         <module>api-gateway</module>
         <module>auth-service</module>
         <module>etl-worker-service</module>
-<!--        <module>candidate-service</module>-->
+        <module>job-service</module>
+        <!--        <module>candidate-service</module>-->
 <!--        <module>search-service</module>-->
     </modules>
 
