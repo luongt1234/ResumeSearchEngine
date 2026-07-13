@@ -75,7 +75,24 @@ public class MinioStorageAdapter implements IFileStoragePort {
 
     @Override
     public String DeleteFile(String fileUrl) {
-        return "";
+        try {
+            if (fileUrl == null || fileUrl.isBlank()) {
+                throw new RuntimeException("fileUrl không hợp lệ!");
+            }
+
+            minioClient.removeObject(
+                RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileUrl)
+                    .build()
+            );
+
+            log.info("Xóa file trên MinIO thành công: {}", fileUrl);
+            return fileUrl;
+        } catch (Exception ex) {
+            log.error("Lỗi khi xóa file trên MinIO: {}", ex.getMessage());
+            throw new RuntimeException("Xóa file thất bại!");
+        }
     }
 
     @Override

@@ -1,0 +1,43 @@
+{
+  "personal_info": {
+    "full_name": "Tên đầy đủ của ứng viên",
+    "email": "Địa chỉ email liên hệ",
+    "phone": "Số điện thoại liên hệ",
+    "links": ["Link Github, LinkedIn, Portfolio hoặc các trang web cá nhân khác"]
+  },
+  "summary": "Đoạn giới thiệu bản thân, mục tiêu nghề nghiệp (nếu có)",
+  "skills": ["Tên kỹ năng 1", "Tên kỹ năng 2"],
+  "experience": [
+    {
+      "company": "Tên công ty",
+      "position": "Vị trí công việc (VD: Backend Developer)",
+      "duration": "Thời gian làm việc (VD: 01/2021 - 12/2022)",
+      "responsibilities": [
+        "Mô tả chi tiết công việc 1",
+        "Mô tả chi tiết công việc 2"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "project_name": "Tên dự án",
+      "role": "Vai trò trong dự án (VD: Team Lead, Developer)",
+      "duration": "Thời gian thực hiện dự án",
+      "technologies": ["Công nghệ 1", "Công nghệ 2"],
+      "description": "Mô tả ngắn gọn về mục đích hoặc kết quả dự án",
+      "responsibilities": [
+        "Nhiệm vụ cụ thể 1 trong dự án",
+        "Nhiệm vụ cụ thể 2 trong dự án"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Tên trường học/cơ sở đào tạo",
+      "degree": "Bằng cấp (VD: Cử nhân, Thạc sĩ)",
+      "major": "Chuyên ngành học",
+      "duration": "Niên khóa (VD: 2016 - 2020)"
+    }
+  ],
+  "certifications": ["Tên chứng chỉ 1", "Tên chứng chỉ 2"]
+}

@@ -1,16 +1,15 @@
 package com.luontd.resumeservice.infrastructure.storage;
 
 import com.luontd.resumeservice.application.interfaces.outbound.IFileStoragePort;
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import com.luontd.resumeservice.infrastructure.storage.support.CustomMultipartFile;
+import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -76,11 +75,57 @@ public class MinioStorageAdapter implements IFileStoragePort {
 
     @Override
     public String DeleteFile(String fileUrl) {
-        return "";
+        try {
+            if (fileUrl == null || fileUrl.isBlank()) {
+                throw new RuntimeException("fileUrl không hợp lệ!");
+            }
+
+            minioClient.removeObject(
+                RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileUrl)
+                    .build()
+            );
+
+            log.info("Xóa file trên MinIO thành công: {}", fileUrl);
+            return fileUrl;
+        } catch (Exception ex) {
+            log.error("Lỗi khi xóa file trên MinIO: {}", ex.getMessage());
+            throw new RuntimeException("Xóa file thất bại!");
+        }
     }
 
     @Override
     public MultipartFile GetFileByFileUrl(String fileUrl) {
-        return null;
+        try {
+            if (fileUrl == null || fileUrl.isBlank()) {
+                throw new RuntimeException("fileUrl không hợp lệ!");
+            }
+
+            try (InputStream inputStream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileUrl)
+                            .build()
+            )) {
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                byte[] data = new byte[8192];
+                int nRead;
+
+                while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                }
+                buffer.flush();
+
+                byte[] fileBytes = buffer.toByteArray();
+                String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+
+                log.info("Lấy file từ MinIO thành công: {}", fileUrl);
+                return new CustomMultipartFile(fileBytes, fileName, "application/pdf");
+            }
+        } catch (Exception ex) {
+            log.error("Lỗi khi lấy file từ MinIO: {}", ex.getMessage());
+            throw new RuntimeException("Lấy file thất bại!");
+        }
     }
 }
