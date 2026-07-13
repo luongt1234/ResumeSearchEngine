@@ -29,7 +29,7 @@
         <module>etl-worker-service</module>
         <module>job-service</module>
         <!--        <module>candidate-service</module>-->
-<!--        <module>search-service</module>-->
+        <module>search-service</module>
     </modules>
 
     <dependencyManagement>

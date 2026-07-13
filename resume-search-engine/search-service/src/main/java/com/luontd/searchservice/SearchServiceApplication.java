@@ -1,16 +1,13 @@
-package com.luontd.resumeservice;
+package com.luontd.searchservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients
-public class ResumeServiceApplication {
+public class SearchServiceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ResumeServiceApplication.class, args);
+        SpringApplication.run(SearchServiceApplication.class, args);
     }
 }

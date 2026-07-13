@@ -6,6 +6,7 @@ import Layout from './components/Layout'
 import AuthPage from './pages/AuthPage'
 import DashboardPage from './pages/DashboardPage'
 import BatchesPage from './pages/BatchesPage'
+import BatchScoringPage from './pages/BatchScoringPage'
 import UploadPage from './pages/UploadPage'
 import SearchPage from './pages/SearchPage'
 
@@ -22,6 +23,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
       <Route path="/dashboard" element={<ProtectedRoute><Layout><DashboardPage /></Layout></ProtectedRoute>} />
       <Route path="/batches" element={<ProtectedRoute><Layout><BatchesPage /></Layout></ProtectedRoute>} />
+      <Route path="/batches/:batchId/scoring" element={<ProtectedRoute><Layout><BatchScoringPage /></Layout></ProtectedRoute>} />
       <Route path="/upload" element={<ProtectedRoute><Layout><UploadPage /></Layout></ProtectedRoute>} />
       <Route path="/search" element={<ProtectedRoute><Layout><SearchPage /></Layout></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />

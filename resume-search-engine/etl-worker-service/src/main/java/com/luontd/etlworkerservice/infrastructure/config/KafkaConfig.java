@@ -110,6 +110,40 @@ public class KafkaConfig {
         return factory;
     }
 
+    /**
+     * Consumer factory riêng cho CvParsedEvent — deserialize thẳng thành kiểu typed.
+     * Dùng cho ElasticSearchConsumer và WeaviateConsumer.
+     */
+    @Bean
+    public ConsumerFactory<String, com.luontd.etlworkerservice.application.dto.event.CvParsedEvent> cvParsedEventConsumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        config.put(JsonDeserializer.VALUE_DEFAULT_TYPE,
+                "com.luontd.etlworkerservice.application.dto.event.CvParsedEvent");
+        config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                new JsonDeserializer<>(
+                        com.luontd.etlworkerservice.application.dto.event.CvParsedEvent.class,
+                        false
+                )
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, com.luontd.etlworkerservice.application.dto.event.CvParsedEvent>
+    cvParsedEventListenerContainerFactory() {
+        var factory = new ConcurrentKafkaListenerContainerFactory<
+                String,
+                com.luontd.etlworkerservice.application.dto.event.CvParsedEvent>();
+        factory.setConsumerFactory(cvParsedEventConsumerFactory());
+        return factory;
+    }
+
+
     // =========================
     // Topic Configuration
     // =========================
@@ -118,6 +152,45 @@ public class KafkaConfig {
         return TopicBuilder
                 .name("user-topic")
                 .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
+    @Value("${kafka.topic.cv-parsed-mysql}")
+    private String cvParsedMysqlTopic;
+
+    @Value("${kafka.topic.cv-parsed-elasticsearch}")
+    private String cvParsedElasticsearchTopic;
+
+    @Value("${kafka.topic.cv-parsed-embedding}")
+    private String cvParsedEmbeddingTopic;
+
+    /** Topic downstream: ETL → MySQL Service lưu metadata candidate */
+    @Bean
+    public NewTopic cvParsedMysqlTopic() {
+        return TopicBuilder
+                .name(cvParsedMysqlTopic)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    /** Topic downstream: ETL → Elasticsearch index full-text/keyword */
+    @Bean
+    public NewTopic cvParsedElasticsearchTopic() {
+        return TopicBuilder
+                .name(cvParsedElasticsearchTopic)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    /** Topic downstream: ETL → Embedding Service → Weaviate vector store */
+    @Bean
+    public NewTopic cvParsedEmbeddingTopic() {
+        return TopicBuilder
+                .name(cvParsedEmbeddingTopic)
+                .partitions(3)
                 .replicas(1)
                 .build();
     }

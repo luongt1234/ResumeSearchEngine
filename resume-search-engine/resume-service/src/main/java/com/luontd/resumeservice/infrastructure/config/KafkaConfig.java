@@ -119,4 +119,42 @@ public class KafkaConfig {
                 .replicas(1)
                 .build();
     }
+
+    // =========================
+    // Typed Consumer Factory — CvParsedEventDto
+    // Dùng cho CvParsedMysqlConsumer
+    // =========================
+
+    /**
+     * Consumer factory deserialize thẳng thành CvParsedEventDto.
+     * Tránh manual casting từ LinkedHashMap khi dùng generic Object consumer.
+     */
+    @Bean
+    public ConsumerFactory<String, com.luontd.resumeservice.infrastructure.messaging.kafka.consumer.dto.CvParsedEventDto>
+    cvParsedEventConsumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                new JsonDeserializer<>(
+                        com.luontd.resumeservice.infrastructure.messaging.kafka.consumer.dto.CvParsedEventDto.class,
+                        false
+                )
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, com.luontd.resumeservice.infrastructure.messaging.kafka.consumer.dto.CvParsedEventDto>
+    cvParsedEventListenerContainerFactory() {
+        var factory = new ConcurrentKafkaListenerContainerFactory<
+                String,
+                com.luontd.resumeservice.infrastructure.messaging.kafka.consumer.dto.CvParsedEventDto>();
+        factory.setConsumerFactory(cvParsedEventConsumerFactory());
+        return factory;
+    }
 }
+

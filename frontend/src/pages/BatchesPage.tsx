@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Plus, Pencil, Trash2, Tag, ChevronRight, X, Check, Loader2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Tag, ChevronRight, X, Check, Loader2, Award } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { batchService, skillService } from '../services'
 
@@ -23,6 +24,7 @@ const emptyBatch = { batchName: '', targetPosition: '', minYoe: 0, description: 
 const emptySkill = { skillName: '', weight: 1, isMandatory: false }
 
 const BatchesPage: React.FC = () => {
+  const navigate = useNavigate()
   const [batches, setBatches] = useState<Batch[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null)
@@ -154,13 +156,18 @@ const BatchesPage: React.FC = () => {
               <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>Mỗi batch có thể có nhiều kỹ năng yêu cầu với trọng số khác nhau</p>
             </div>
           ) : (
-            <div className="glass p-5 space-y-4">
-              <div className="flex items-center justify-between">
+            <div className="glass p-5 space-y-4 flex flex-col h-full">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div>
-                  <h2 className="font-bold">{selectedBatch.batchName}</h2>
-                  <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{selectedBatch.targetPosition}</p>
+                  <h2 className="font-bold text-xl">{selectedBatch.batchName}</h2>
+                  <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>{selectedBatch.targetPosition}</p>
                 </div>
-                <button onClick={openAddSkill} className="btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}><Plus size={14} />Thêm kỹ năng</button>
+                <div className="flex gap-2 flex-shrink-0">
+                  <button onClick={openAddSkill} className="btn-ghost" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}><Plus size={16} />Thêm kỹ năng</button>
+                  <button onClick={() => navigate(`/batches/${selectedBatch.id}/scoring`)} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                    <Award size={16} /> Chấm điểm CV
+                  </button>
+                </div>
               </div>
 
               {skillsLoading ? (

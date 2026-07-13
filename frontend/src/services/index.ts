@@ -44,3 +44,7 @@ export const skillService = {
 
   remove: (batchId: string, skillId: string) => api.delete(`/batches/${batchId}/skills/${skillId}`),
 }
+
+export const scoreService = {
+  scoreBatch: (batchId: string) => api.post(`/batches/${batchId}/score`),
+}
