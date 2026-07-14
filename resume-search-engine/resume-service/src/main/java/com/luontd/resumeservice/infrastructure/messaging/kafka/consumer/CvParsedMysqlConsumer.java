@@ -21,7 +21,7 @@ public class CvParsedMysqlConsumer {
     private final SaveParsedResumeService saveParsedResumeService;
 
     @KafkaListener(
-            topics = "${kafka.topic.cv-parsed-events}",
+            topics = "${kafka.topic.cv-parsed-mysql}",
             groupId = "${kafka.consumer.group.cv-parsed}",
             containerFactory = "cvParsedEventListenerContainerFactory"
     )
@@ -34,6 +34,10 @@ public class CvParsedMysqlConsumer {
             log.warn("⚠️ [Kafka→MySQL] Resume không tồn tại, bỏ qua — resumeId={}: {}", event.getResumeId(), e.getMessage());
         } catch (Exception e) {
             log.error("❌ [Kafka→MySQL] Lỗi lưu CV vào MySQL, resumeId={}: {}", event.getResumeId(), e.getMessage(), e);
+            
+            // Đổi trạng thái trong DB thành FAILED
+            saveParsedResumeService.updateStatusFailed(event.getResumeId(), e.getMessage());
+            
             // Re-throw để Spring Kafka retry / đẩy vào DLQ nếu được cấu hình
             throw new RuntimeException("Lỗi lưu CV vào MySQL", e);
         }

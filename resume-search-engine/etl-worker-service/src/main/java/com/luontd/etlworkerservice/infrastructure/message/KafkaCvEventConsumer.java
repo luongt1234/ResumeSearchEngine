@@ -6,6 +6,7 @@ import com.luontd.etlworkerservice.infrastructure.message.dto.ProcessCvJobEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -20,6 +21,9 @@ public class KafkaCvEventConsumer {
 
     private final IProcessCvUseCase _processCvUseCase;
     private final KafkaTemplate<String, Object> _kafkaTemplate;
+
+    @Value("${kafka.topic.cv-uploaded-dlq:process_cv_topic-dlq}")
+    private String dlqTopic;
 
     @KafkaListener(
             topics = "${kafka.topic.cv-uploaded}",
@@ -44,7 +48,13 @@ public class KafkaCvEventConsumer {
             log.error("❌ [Kafka] Lỗi xử lý CV fileId={}: {}", event.getFileId(), e.getMessage(), e);
 
             // Dead Letter Queue — đẩy message lỗi sang DLQ để retry sau
-            // _kafkaTemplate.send("process_cv_topic-dlq", event.getFileId(), event);
+            _kafkaTemplate.send(dlqTopic, event.getFileId(), event).whenComplete((res, ex) -> {
+                if (ex != null) {
+                    log.error("❌ [Kafka] Gửi sang DLQ thất bại fileId={}", event.getFileId(), ex);
+                } else {
+                    log.info("✅ [Kafka] Đã chuyển message lỗi sang DLQ fileId={}", event.getFileId());
+                }
+            });
         }
     }
 }

@@ -165,6 +165,18 @@ public class KafkaConfig {
     @Value("${kafka.topic.cv-parsed-embedding}")
     private String cvParsedEmbeddingTopic;
 
+    @Value("${kafka.topic.cv-uploaded-dlq:process_cv_topic-dlq}")
+    private String cvUploadedDlqTopic;
+
+    @Bean
+    public NewTopic cvUploadedDlqTopic() {
+        return TopicBuilder
+                .name(cvUploadedDlqTopic)
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
     /** Topic downstream: ETL → MySQL Service lưu metadata candidate */
     @Bean
     public NewTopic cvParsedMysqlTopic() {

@@ -55,16 +55,18 @@ public class KafkaEventPublisher implements IEventPublisherPort {
         } else if (event instanceof java.util.Map) {
             key = ((java.util.Map<?, ?>) event).get("resumeId").toString();
         }
+        
+        final String messageKey = key;
 
-        CompletableFuture<?>  future = kafkaTemplate.send(topic, key, event).toCompletableFuture();
+        CompletableFuture<?>  future = kafkaTemplate.send(topic, messageKey, event).toCompletableFuture();
 
         future.whenComplete((result, ex) -> {
             if (ex != null) {
                 log.error("❌ [Kafka] Gửi event tới {} thất bại — resumeId={}, topic={}, error={}",
-                        target, key, topic, ex.getMessage(), ex);
+                        target, messageKey, topic, ex.getMessage(), ex);
             } else {
                 log.info("✅ [Kafka] Gửi event tới {} thành công — resumeId={}, topic={}",
-                        target, key, topic);
+                        target, messageKey, topic);
             }
         });
     }

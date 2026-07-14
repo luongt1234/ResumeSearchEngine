@@ -22,6 +22,27 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(400, "File quá lớn! Kích thước tối đa cho phép là 10MB."));
     }
 
+    @ExceptionHandler(com.luontd.authservice.domain.exception.BusinessException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessException(com.luontd.authservice.domain.exception.BusinessException ex) {
+        log.warn("[ExceptionHandler] BusinessException {}: {}", ex.getStatus(), ex.getMessage());
+        return ResponseEntity.status(ex.getStatus())
+                .body(ApiResponse.error(ex.getStatus(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(com.luontd.authservice.domain.exception.BadRequestException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBadRequest(com.luontd.authservice.domain.exception.BadRequestException ex) {
+        log.warn("[ExceptionHandler] 400 Bad Request: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(400, ex.getMessage()));
+    }
+
+    @ExceptionHandler(com.luontd.authservice.domain.exception.ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(com.luontd.authservice.domain.exception.ResourceNotFoundException ex) {
+        log.warn("[ExceptionHandler] 404 Not Found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(404, ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
         log.error("[ExceptionHandler] 500 Internal Error: {}", ex.getMessage(), ex);

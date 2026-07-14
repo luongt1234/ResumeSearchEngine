@@ -119,10 +119,10 @@ public class ScoreResumeService implements IScoreResumeService {
             List<String> missingMandatorySkills = new ArrayList<>();
             boolean hasMissingMandatory = false;
 
-            Map<String, WeaviateSimilarityClient.SkillMatchResult> resumeSkillMatches = batchSkillMatchesByResumeId.get(rIdStr);
+            Map<String, SearchServiceClient.SkillMatchResult> resumeSkillMatches = batchSkillMatchesByResumeId.get(rIdStr);
 
             for (BatchSkill reqSkill : requiredSkills) {
-                WeaviateSimilarityClient.SkillMatchResult match = resumeSkillMatches.get(reqSkill.getSkillName());
+                SearchServiceClient.SkillMatchResult match = resumeSkillMatches.get(reqSkill.getSkillName());
                 
                 if (match != null && match.certainty() >= skillSimilarityThreshold) {
                     matchedWeight += reqSkill.getWeight();
