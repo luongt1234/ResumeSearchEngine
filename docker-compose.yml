@@ -61,8 +61,20 @@ services:
       - elasticsearch-data:/usr/share/elasticsearch/data
     restart: unless-stopped
 
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
 volumes:
   minio-data:
   kafka-data:
   weaviate-data:
   elasticsearch-data:
+  mysql-data:

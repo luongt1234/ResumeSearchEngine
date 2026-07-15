@@ -23,6 +23,7 @@
     </properties>
 
     <modules>
+        <module>discovery-service</module>
         <module>resume-service</module>
         <module>api-gateway</module>
         <module>auth-service</module>
