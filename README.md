@@ -42,7 +42,7 @@ docker-compose up -d
 ```
 Các dịch vụ sẽ chạy tại:
 - MinIO Console: http://localhost:9001 (API tại 9000)
-- Weaviate: http://localhost:8080
+- Weaviate: http://localhost:8088
 - Elasticsearch: http://localhost:9200
 - Kafka: localhost:9092
 

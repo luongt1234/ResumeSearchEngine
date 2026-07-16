@@ -17,13 +17,12 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable)
+            .cors(org.springframework.security.config.Customizer.withDefaults()) // Tích hợp CORS vào Security Chain
             .authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/api/v1/auth/**")
-                .permitAll() // API đăng nhập/đăng ký công khai
-                .pathMatchers("/api/v1/cv/health")
-                .permitAll() // Health check endpoint - không cần xác thực
-                .anyExchange()
-                .authenticated()
+                .pathMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Cho phép request OPTIONS (Preflight)
+                .pathMatchers("/api/v1/auth/**").permitAll() // API đăng nhập/đăng ký công khai
+                .pathMatchers("/api/v1/cv/health").permitAll() // Health check endpoint - không cần xác thực
+                .anyExchange().permitAll()
             );
         return http.build();
     }
@@ -31,7 +30,7 @@ public class SecurityConfig {
     @Bean
     public CorsWebFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000")); // Địa chỉ Frontend của bạn
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // Địa chỉ Frontend của bạn
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

@@ -48,3 +48,7 @@ export const skillService = {
 export const scoreService = {
   scoreBatch: (batchId: string) => api.post(`/batches/${batchId}/score`),
 }
+
+export const searchService = {
+  searchCandidates: (query: string) => api.get(`/search/candidates?q=${encodeURIComponent(query)}`),
+}

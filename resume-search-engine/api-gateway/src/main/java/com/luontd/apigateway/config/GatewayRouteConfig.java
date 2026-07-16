@@ -41,17 +41,23 @@ public class GatewayRouteConfig {
                         )
                         .uri("http://localhost:8082") // Đích đến: Cổng mạng vật lý của resume-service
                 )
-                // 2. Tuyến đường Tìm kiếm lai (gửi sang search-service)
+                // 2. Tuyến đường Tìm kiếm lai (gửi sang search-service) - Đã sửa thành port 8084
                 .route("search-service-route", r -> r
-                        .path("/api/v1/search/**")
+                        .path("/api/v1/search/**", "/api/internal/search/**")
                         .filters(f -> f.filter(jwtFilter))
-                        .uri("http://localhost:8083")
+                        .uri("http://localhost:8084")
                 )
-                // 3. Tuyến đường Quản lý hồ sơ ứng viên (gửi sang candidate-service)
+                // 3. Tuyến đường Quản lý hồ sơ ứng viên (gửi sang candidate-service - Dự kiến port 8085)
                 .route("candidate-service-route", r -> r
                         .path("/api/v1/candidates/**")
                         .filters(f -> f.filter(jwtFilter))
-                        .uri("http://localhost:8084")
+                        .uri("http://localhost:8085")
+                )
+                // 4. Tuyến đường Quản lý Công việc (gửi sang job-service - Dự kiến port 8086)
+                .route("job-service-route", r -> r
+                        .path("/api/v1/jobs/**")
+                        .filters(f -> f.filter(jwtFilter))
+                        .uri("http://localhost:8086")
                 )
                 .build();
     }

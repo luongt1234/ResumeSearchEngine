@@ -123,6 +123,56 @@ public class WeaviateSimilarityClient {
     }
 
     /**
+     * Tìm kiếm top K candidates bằng Semantic Search (Vector).
+     * Trả về Map<resumeId, certainty>.
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Double> searchCandidates(List<Double> queryVector, int limit) {
+        WebClient client = webClientBuilder.baseUrl(weaviateUrl).build();
+
+        String query = String.format("""
+            {
+              Get {
+                %s(
+                  nearVector: { vector: %s }
+                  limit: %d
+                ) {
+                  resumeId
+                  _additional { certainty }
+                }
+              }
+            }
+            """, candidateClassName, queryVector.toString(), limit);
+
+        Map<String, Object> requestBody = Map.of("query", query);
+
+        Map<String, Object> response = client.post()
+                .uri("/v1/graphql")
+                .header("Content-Type", "application/json")
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(Map.class)
+                .block();
+
+        Map<String, Double> result = new HashMap<>();
+
+        if (response != null && response.containsKey("data")) {
+            Map<String, Object> data = (Map<String, Object>) response.get("data");
+            Map<String, Object> get = (Map<String, Object>) data.get("Get");
+            if (get != null && get.containsKey(candidateClassName)) {
+                List<Map<String, Object>> candidates = (List<Map<String, Object>>) get.get(candidateClassName);
+                for (Map<String, Object> cand : candidates) {
+                    String resumeId = (String) cand.get("resumeId");
+                    Map<String, Object> additional = (Map<String, Object>) cand.get("_additional");
+                    Double certainty = ((Number) additional.get("certainty")).doubleValue();
+                    result.put(resumeId, certainty);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * Truy vấn độ tương đồng của một Kỹ năng yêu cầu (BatchSkill) với danh sách các kỹ năng của CV (CandidateSkill class).
      * Tìm kỹ năng gần nhất cho mỗi Resume.
      * Trả về Map<resumeId, SkillMatchResult>
