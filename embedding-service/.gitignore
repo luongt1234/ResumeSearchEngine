@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment — KHÔNG commit venv vào git
+venv/
+.venv/
+env/
+ENV/
+
+# Distribution / build
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Model cache — các file model download từ HuggingFace rất nặng
+.cache/
+*.bin
+*.safetensors
+*.ot
+
+# Environment variables
+.env
+.env.local
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

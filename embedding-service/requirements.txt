@@ -1,0 +1,16 @@
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.5.0
+
+# sentence-transformers >= 3.0 is required for Qwen3-Embedding model support
+sentence-transformers>=3.0.0
+
+# torch: do NOT pin to a specific version here to avoid conflicting with
+# other packages on the host (e.g. torchvision).
+# - If you have a GPU: pip install -r requirements.txt
+# - CPU-only (lighter, ~200 MB): pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.0.0
+transformers>=4.41.0
+huggingface-hub>=0.23.0
+einops>=0.7.0
+accelerate>=0.30.0
