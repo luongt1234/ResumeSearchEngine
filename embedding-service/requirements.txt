@@ -14,3 +14,8 @@ transformers>=4.41.0
 huggingface-hub>=0.23.0
 einops>=0.7.0
 accelerate>=0.30.0
+
+# gRPC dependencies
+grpcio>=1.62.0
+grpcio-tools>=1.62.0
+grpcio-health-checking>=1.62.0

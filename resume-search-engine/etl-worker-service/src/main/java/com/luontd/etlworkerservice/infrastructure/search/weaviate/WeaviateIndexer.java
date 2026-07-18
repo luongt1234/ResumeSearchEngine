@@ -8,6 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import com.luontd.grpc.embedding.EmbeddingServiceGrpc;
+import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingRequest;
+import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingResponse;
+import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingBatchRequest;
+import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingBatchResponse;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,14 +41,8 @@ public class WeaviateIndexer {
     @Value("${weaviate.skill-class-name:CandidateSkill}")
     private String skillClassName;
 
-    @Value("${embedding.api.url}")
-    private String embeddingApiUrl;
-
-    @Value("${embedding.api.key:}")
-    private String embeddingApiKey;
-
-    @Value("${embedding.model:text-embedding-ada-002}")
-    private String embeddingModel;
+    @GrpcClient("embedding-service")
+    private EmbeddingServiceGrpc.EmbeddingServiceBlockingStub embeddingServiceStub;
 
     public void index(CvParsedEvent event) {
         log.info("📥 [Kafka→Weaviate] Nhận event cv-parsed, resumeId={}", event.getResumeId());
@@ -59,12 +59,18 @@ public class WeaviateIndexer {
 
             // Bước 4: Upsert CandidateSkill (từng kỹ năng)
             if (event.getSkills() != null && !event.getSkills().isEmpty()) {
-                for (String skill : event.getSkills()) {
-                    if (skill == null || skill.isBlank()) continue;
-                    List<Double> skillVector = getEmbedding(skill.trim());
-                    upsertSkillToWeaviate(event.getResumeId().toString(), skill.trim(), skillVector);
+                List<String> validSkills = event.getSkills().stream()
+                        .filter(s -> s != null && !s.isBlank())
+                        .map(String::trim)
+                        .toList();
+
+                if (!validSkills.isEmpty()) {
+                    List<List<Double>> skillVectors = getEmbeddingsBatch(validSkills);
+                    for (int i = 0; i < validSkills.size(); i++) {
+                        upsertSkillToWeaviate(event.getResumeId().toString(), validSkills.get(i), skillVectors.get(i));
+                    }
+                    log.info("✅ [Kafka→Weaviate] Upsert {} skills thành công, resumeId={}", validSkills.size(), event.getResumeId());
                 }
-                log.info("✅ [Kafka→Weaviate] Upsert {} skills thành công, resumeId={}", event.getSkills().size(), event.getResumeId());
             }
         } catch (Exception e) {
             log.error("❌ [Kafka→Weaviate] Lỗi upsert Weaviate, resumeId={}: {}", event.getResumeId(), e.getMessage(), e);
@@ -73,37 +79,45 @@ public class WeaviateIndexer {
     }
 
     // =========================================================================
-    // Embedding API (OpenAI-compatible format)
+    // Embedding gRPC API
     // =========================================================================
 
     /**
-     * Gọi Embedding API để lấy vector của text.
-     * Hỗ trợ bất kỳ API nào theo chuẩn OpenAI (OpenAI, Azure OpenAI, local model...).
+     * Gọi gRPC Embedding API để lấy vector của 1 đoạn text.
      */
-    @SuppressWarnings("unchecked")
     private List<Double> getEmbedding(String text) {
-        WebClient client = webClientBuilder.baseUrl(embeddingApiUrl).build();
+        EmbeddingRequest request = EmbeddingRequest.newBuilder()
+                .setText(text)
+                .build();
+        
+        EmbeddingResponse response = embeddingServiceStub.generateEmbedding(request);
+        
+        List<Double> result = new ArrayList<>();
+        for (float val : response.getEmbeddingList()) {
+            result.add((double) val);
+        }
+        return result;
+    }
 
-        Map<String, Object> requestBody = Map.of(
-                "input", text,
-                "model", embeddingModel
-        );
-
-        Map<String, Object> response = client.post()
-                .uri("/v1/embeddings")
-                .header("Authorization", "Bearer " + embeddingApiKey)
-                .header("Content-Type", "application/json")
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
-
-        if (response == null) throw new RuntimeException("Embedding API trả về response rỗng");
-
-        List<Map<String, Object>> data = (List<Map<String, Object>>) response.get("data");
-        if (data == null || data.isEmpty()) throw new RuntimeException("Embedding API không trả về data");
-
-        return (List<Double>) data.get(0).get("embedding");
+    /**
+     * Gọi gRPC Embedding API lấy vector của nhiều đoạn text cùng lúc.
+     */
+    private List<List<Double>> getEmbeddingsBatch(List<String> texts) {
+        EmbeddingBatchRequest request = EmbeddingBatchRequest.newBuilder()
+                .addAllTexts(texts)
+                .build();
+        
+        EmbeddingBatchResponse response = embeddingServiceStub.generateEmbeddings(request);
+        
+        List<List<Double>> result = new ArrayList<>();
+        for (EmbeddingResponse embResp : response.getEmbeddingsList()) {
+            List<Double> singleVector = new ArrayList<>();
+            for (float val : embResp.getEmbeddingList()) {
+                singleVector.add((double) val);
+            }
+            result.add(singleVector);
+        }
+        return result;
     }
 
     // =========================================================================

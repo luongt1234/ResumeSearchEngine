@@ -5,8 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import com.luontd.grpc.embedding.EmbeddingServiceGrpc;
+import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingRequest;
+import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingResponse;
+import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingBatchRequest;
+import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingBatchResponse;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,42 +36,27 @@ public class WeaviateSimilarityClient {
     @Value("${weaviate.skill-class-name:CandidateSkill}")
     private String skillClassName;
 
-    @Value("${embedding.api.url}")
-    private String embeddingApiUrl;
-
-    @Value("${embedding.api.key:}")
-    private String embeddingApiKey;
-
-    @Value("${embedding.model:text-embedding-ada-002}")
-    private String embeddingModel;
+    @GrpcClient("embedding-service")
+    private EmbeddingServiceGrpc.EmbeddingServiceBlockingStub embeddingServiceStub;
 
     /**
      * Gọi Embedding API lấy vector của text.
      */
-    @SuppressWarnings("unchecked")
+    /**
+     * Gọi gRPC Embedding API lấy vector của text.
+     */
     public List<Double> getEmbedding(String text) {
-        WebClient client = webClientBuilder.baseUrl(embeddingApiUrl).build();
-
-        Map<String, Object> requestBody = Map.of(
-                "input", text,
-                "model", embeddingModel
-        );
-
-        Map<String, Object> response = client.post()
-                .uri("/v1/embeddings")
-                .header("Authorization", "Bearer " + embeddingApiKey)
-                .header("Content-Type", "application/json")
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
-
-        if (response == null) throw new RuntimeException("Embedding API response is empty");
-
-        List<Map<String, Object>> data = (List<Map<String, Object>>) response.get("data");
-        if (data == null || data.isEmpty()) throw new RuntimeException("Embedding API returned no data");
-
-        return (List<Double>) data.get(0).get("embedding");
+        EmbeddingRequest request = EmbeddingRequest.newBuilder()
+                .setText(text)
+                .build();
+        
+        EmbeddingResponse response = embeddingServiceStub.generateEmbedding(request);
+        
+        List<Double> result = new ArrayList<>();
+        for (float val : response.getEmbeddingList()) {
+            result.add((double) val);
+        }
+        return result;
     }
 
     /**

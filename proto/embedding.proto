@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package embedding;
+
+option java_package = "com.luontd.grpc.embedding";
+option java_outer_classname = "EmbeddingProto";
+option java_multiple_files = true;
+
+// Service định nghĩa các hàm gọi RPC
+service EmbeddingService {
+  // Tạo vector embedding cho 1 đoạn text
+  rpc GenerateEmbedding (EmbeddingRequest) returns (EmbeddingResponse) {}
+  
+  // Tạo vector embedding cho nhiều đoạn text cùng lúc (batch processing)
+  rpc GenerateEmbeddings (EmbeddingBatchRequest) returns (EmbeddingBatchResponse) {}
+}
+
+// ==========================================
+// Request / Response Messages
+// ==========================================
+
+message EmbeddingRequest {
+  string text = 1;
+}
+
+message EmbeddingResponse {
+  int32 dimension = 1;
+  repeated float embedding = 2; // mảng các số thực float
+}
+
+message EmbeddingBatchRequest {
+  repeated string texts = 1;
+}
+
+message EmbeddingBatchResponse {
+  repeated EmbeddingResponse embeddings = 1;
+}
