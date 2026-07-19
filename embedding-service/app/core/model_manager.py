@@ -61,6 +61,18 @@ class ModelManager:
         """Query the actual embedding dimension from the loaded model."""
         return self.get_model().get_sentence_embedding_dimension()
 
+    def embed(self, text: str) -> list[float]:
+        """Generate embedding for a single text."""
+        model = self.get_model()
+        vector = model.encode(text)
+        return vector.tolist()
+
+    def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        """Generate embeddings for a list of texts."""
+        model = self.get_model()
+        vectors = model.encode(texts)
+        return vectors.tolist()
+
     def get_model_name(self) -> str:
         return self._model_name
 

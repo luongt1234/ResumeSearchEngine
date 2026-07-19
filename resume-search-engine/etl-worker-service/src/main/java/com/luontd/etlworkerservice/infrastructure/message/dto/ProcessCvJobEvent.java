@@ -12,10 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProcessCvJobEvent {
 
-    // Chốt chặn Validate: Không được để trống
-    @NotBlank(message = "fileId không hợp lệ hoặc bị trống")
-    private String fileId;
+    @NotBlank(message = "resumeId không hợp lệ hoặc bị trống")
+    private String resumeId;
 
     @NotBlank(message = "userId không hợp lệ hoặc bị trống")
     private String userId;
+
+    @NotBlank(message = "fileUrl không hợp lệ hoặc bị trống")
+    private String fileUrl;
 }

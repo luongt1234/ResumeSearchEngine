@@ -83,9 +83,9 @@ def serve():
     health_pb2_grpc.add_HealthServicer_to_server(health_servicer, server)
     health_servicer.set("embedding.EmbeddingService", health_pb2.HealthCheckResponse.SERVING)
 
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port('[::]:8085')
     server.start()
-    logger.info("gRPC Server started on port 50051")
+    logger.info("gRPC Server started on port 8085")
     server.wait_for_termination()
 
 if __name__ == '__main__':

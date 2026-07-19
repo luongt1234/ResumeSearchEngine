@@ -9,6 +9,8 @@ import com.luontd.etlworkerservice.application.port.out.IEventPublisherPort;
 import com.luontd.etlworkerservice.application.port.out.IFileStoragePort;
 import com.luontd.etlworkerservice.application.port.out.ILlmPort;
 import com.luontd.etlworkerservice.application.port.out.IOcrPort;
+import com.luontd.etlworkerservice.application.port.out.IElasticsearchIndexerPort;
+import com.luontd.etlworkerservice.application.port.out.IWeaviateIndexerPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,8 +30,8 @@ public class ProcessCvUseCase implements IProcessCvUseCase {
     private final IOcrPort _ocrPort;
     private final ILlmPort _llmPort;
     private final IEventPublisherPort _eventPublisherPort;
-    private final com.luontd.etlworkerservice.infrastructure.search.elasticsearch.ElasticsearchIndexer _elasticsearchIndexer;
-    private final com.luontd.etlworkerservice.infrastructure.search.weaviate.WeaviateIndexer _weaviateIndexer;
+    private final IElasticsearchIndexerPort _elasticsearchIndexer;
+    private final IWeaviateIndexerPort _weaviateIndexer;
 
     @Override
     public void Execute(ResumeEventDto event) {

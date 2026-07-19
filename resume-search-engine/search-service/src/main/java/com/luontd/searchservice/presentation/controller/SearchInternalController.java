@@ -1,6 +1,7 @@
 package com.luontd.searchservice.presentation.controller;
 
-import com.luontd.searchservice.infrastructure.weaviate.WeaviateSimilarityClient;
+import com.luontd.searchservice.application.dto.SkillMatchResultDto;
+import com.luontd.searchservice.application.interfaces.IWeaviateSimilarityPort;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SearchInternalController {
 
-    private final WeaviateSimilarityClient weaviateClient;
+    private final IWeaviateSimilarityPort weaviateClient;
 
     @PostMapping("/embedding")
     public ResponseEntity<List<Double>> getEmbedding(@RequestBody String text) {
@@ -30,7 +31,7 @@ public class SearchInternalController {
     }
 
     @PostMapping("/skill-match")
-    public ResponseEntity<Map<String, WeaviateSimilarityClient.SkillMatchResult>> getSkillMatches(@RequestBody SemanticScoreRequest req) {
+    public ResponseEntity<Map<String, SkillMatchResultDto>> getSkillMatches(@RequestBody SemanticScoreRequest req) {
         return ResponseEntity.ok(weaviateClient.getBestSkillMatches(req.getVector(), req.getResumeIds()));
     }
 

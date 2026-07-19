@@ -3,6 +3,7 @@ package com.luontd.etlworkerservice.infrastructure.search.elasticsearch;
 import com.luontd.etlworkerservice.application.dto.event.CvParsedEvent;
 import com.luontd.etlworkerservice.application.dto.event.ExperienceDto;
 import com.luontd.etlworkerservice.application.dto.event.EducationDto;
+import com.luontd.etlworkerservice.application.port.out.IElasticsearchIndexerPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,10 +19,11 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class ElasticsearchIndexer {
+public class ElasticsearchIndexer implements IElasticsearchIndexerPort {
 
     private final CandidateSearchRepository candidateSearchRepository;
 
+    @Override
     public void index(CvParsedEvent event) {
         log.info("📥 [ETL→ES] Indexing event cv-parsed, resumeId={}", event.getResumeId());
         try {

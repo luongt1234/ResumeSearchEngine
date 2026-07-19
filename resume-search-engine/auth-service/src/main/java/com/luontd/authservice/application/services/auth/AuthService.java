@@ -9,7 +9,7 @@ import com.luontd.authservice.application.services.dto.LoginResponse;
 import com.luontd.authservice.application.services.dto.RegisterRequest;
 import com.luontd.authservice.application.services.dto.RegisterResponse;
 import com.luontd.authservice.domain.entity.Role;
-import com.luontd.authservice.infrastructure.security.JwtService;
+import com.luontd.authservice.application.interfaces.IJwtPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import java.util.UUID;
 public class AuthService implements IAuthService {
     private final IUserRepository _userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService _jwtService;
+    private final IJwtPort _jwtService;
     private final IRoleRepository _roleRepository;
     private final IUserMapper _userMapper;
 

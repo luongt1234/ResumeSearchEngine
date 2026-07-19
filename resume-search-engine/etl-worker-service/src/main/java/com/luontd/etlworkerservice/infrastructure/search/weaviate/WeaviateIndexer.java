@@ -3,6 +3,7 @@ package com.luontd.etlworkerservice.infrastructure.search.weaviate;
 import com.luontd.etlworkerservice.application.dto.event.CvParsedEvent;
 import com.luontd.etlworkerservice.application.dto.event.ExperienceDto;
 import com.luontd.etlworkerservice.application.dto.event.EducationDto;
+import com.luontd.etlworkerservice.application.port.out.IWeaviateIndexerPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,10 +11,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import com.luontd.grpc.embedding.EmbeddingServiceGrpc;
-import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingRequest;
-import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingResponse;
-import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingBatchRequest;
-import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingBatchResponse;
+import com.luontd.grpc.embedding.EmbeddingRequest;
+import com.luontd.grpc.embedding.EmbeddingResponse;
+import com.luontd.grpc.embedding.EmbeddingBatchRequest;
+import com.luontd.grpc.embedding.EmbeddingBatchResponse;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class WeaviateIndexer {
+public class WeaviateIndexer implements IWeaviateIndexerPort {
 
     private final WebClient.Builder webClientBuilder;
 
@@ -44,6 +45,7 @@ public class WeaviateIndexer {
     @GrpcClient("embedding-service")
     private EmbeddingServiceGrpc.EmbeddingServiceBlockingStub embeddingServiceStub;
 
+    @Override
     public void index(CvParsedEvent event) {
         log.info("📥 [Kafka→Weaviate] Nhận event cv-parsed, resumeId={}", event.getResumeId());
         try {

@@ -92,6 +92,10 @@ public class KafkaConfig {
                 JsonDeserializer.TRUSTED_PACKAGES,
                 "*"
         );
+        config.put(
+                JsonDeserializer.TYPE_MAPPINGS,
+                "com.luontd.resumeservice.application.event.ResumeCreatedEvent:com.luontd.etlworkerservice.infrastructure.message.dto.ProcessCvJobEvent"
+        );
         return new DefaultKafkaConsumerFactory<>(
                 config,
                 new StringDeserializer(),

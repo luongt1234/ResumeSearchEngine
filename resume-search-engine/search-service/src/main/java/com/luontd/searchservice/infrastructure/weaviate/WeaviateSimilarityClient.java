@@ -1,5 +1,8 @@
 package com.luontd.searchservice.infrastructure.weaviate;
 
+import com.luontd.searchservice.application.dto.SkillMatchResultDto;
+import com.luontd.searchservice.application.interfaces.IWeaviateSimilarityPort;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,10 +10,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import com.luontd.grpc.embedding.EmbeddingServiceGrpc;
-import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingRequest;
-import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingResponse;
-import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingBatchRequest;
-import com.luontd.grpc.embedding.EmbeddingProto.EmbeddingBatchResponse;
+import com.luontd.grpc.embedding.EmbeddingRequest;
+import com.luontd.grpc.embedding.EmbeddingResponse;
+import com.luontd.grpc.embedding.EmbeddingBatchRequest;
+import com.luontd.grpc.embedding.EmbeddingBatchResponse;
 
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -23,7 +26,7 @@ import java.util.Map;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class WeaviateSimilarityClient {
+public class WeaviateSimilarityClient implements IWeaviateSimilarityPort {
 
     private final WebClient.Builder webClientBuilder;
 
@@ -170,7 +173,7 @@ public class WeaviateSimilarityClient {
      * Trả về Map<resumeId, SkillMatchResult>
      */
     @SuppressWarnings("unchecked")
-    public Map<String, SkillMatchResult> getBestSkillMatches(List<Double> batchSkillVector, List<String> resumeIds) {
+    public Map<String, SkillMatchResultDto> getBestSkillMatches(List<Double> batchSkillVector, List<String> resumeIds) {
         WebClient client = webClientBuilder.baseUrl(weaviateUrl).build();
 
         String idsArray = resumeIds.stream()
@@ -203,7 +206,7 @@ public class WeaviateSimilarityClient {
                 .bodyToMono(Map.class)
                 .block();
 
-        Map<String, SkillMatchResult> bestMatches = new HashMap<>();
+        Map<String, SkillMatchResultDto> bestMatches = new HashMap<>();
 
         if (response != null && response.containsKey("data")) {
             Map<String, Object> data = (Map<String, Object>) response.get("data");
@@ -217,7 +220,7 @@ public class WeaviateSimilarityClient {
                     Double certainty = ((Number) additional.get("certainty")).doubleValue();
 
                     if (!bestMatches.containsKey(resumeId) || bestMatches.get(resumeId).certainty() < certainty) {
-                        bestMatches.put(resumeId, new SkillMatchResult(matchedSkillName, certainty));
+                        bestMatches.put(resumeId, new SkillMatchResultDto(matchedSkillName, certainty));
                     }
                 }
             }
@@ -225,5 +228,4 @@ public class WeaviateSimilarityClient {
         return bestMatches;
     }
 
-    public record SkillMatchResult(String matchedSkillName, Double certainty) {}
 }

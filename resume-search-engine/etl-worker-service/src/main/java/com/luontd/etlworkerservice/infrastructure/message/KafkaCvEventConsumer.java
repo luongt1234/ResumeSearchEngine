@@ -30,29 +30,29 @@ public class KafkaCvEventConsumer {
             groupId = "${spring.kafka.consumer.group-id}"
     )
     public void consumeCvUploadedEvent(@Payload @Valid ProcessCvJobEvent event) {
-        log.info("📥 [Kafka] Nhận job xử lý CV: fileId={}, userId={}", event.getFileId(), event.getUserId());
+        log.info("📥 [Kafka] Nhận job xử lý CV: resumeId={}, userId={}", event.getResumeId(), event.getUserId());
         try {
             // Chuyển message event thành ResumeEventDto cho application layer
             ResumeEventDto resumeEventDto = ResumeEventDto.builder()
-                    .resumeId(UUID.fromString(event.getFileId()))
+                    .resumeId(UUID.fromString(event.getResumeId()))
                     .userId(UUID.fromString(event.getUserId()))
-                    .fileUrl(event.getFileId())   // fileId = key object trong MinIO/S3
+                    .fileUrl(event.getFileUrl())   // fileUrl = key object trong MinIO/S3
                     .build();
 
             // Bàn giao cho application layer xử lý toàn bộ pipeline ETL
             _processCvUseCase.Execute(resumeEventDto);
 
-            log.info("✅ [Kafka] Hoàn tất xử lý CV: fileId={}", event.getFileId());
+            log.info("✅ [Kafka] Hoàn tất xử lý CV: resumeId={}", event.getResumeId());
 
         } catch (Exception e) {
-            log.error("❌ [Kafka] Lỗi xử lý CV fileId={}: {}", event.getFileId(), e.getMessage(), e);
+            log.error("❌ [Kafka] Lỗi xử lý CV resumeId={}: {}", event.getResumeId(), e.getMessage(), e);
 
             // Dead Letter Queue — đẩy message lỗi sang DLQ để retry sau
-            _kafkaTemplate.send(dlqTopic, event.getFileId(), event).whenComplete((res, ex) -> {
+            _kafkaTemplate.send(dlqTopic, event.getResumeId(), event).whenComplete((res, ex) -> {
                 if (ex != null) {
-                    log.error("❌ [Kafka] Gửi sang DLQ thất bại fileId={}", event.getFileId(), ex);
+                    log.error("❌ [Kafka] Gửi sang DLQ thất bại resumeId={}", event.getResumeId(), ex);
                 } else {
-                    log.info("✅ [Kafka] Đã chuyển message lỗi sang DLQ fileId={}", event.getFileId());
+                    log.info("✅ [Kafka] Đã chuyển message lỗi sang DLQ resumeId={}", event.getResumeId());
                 }
             });
         }

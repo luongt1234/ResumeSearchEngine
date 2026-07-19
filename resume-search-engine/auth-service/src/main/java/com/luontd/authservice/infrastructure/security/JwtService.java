@@ -3,6 +3,7 @@ package com.luontd.authservice.infrastructure.security;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 
+import com.luontd.authservice.application.interfaces.IJwtPort;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -12,9 +13,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class JwtService {
+public class JwtService implements IJwtPort {
     private final Key jwtSigningKey;
 
+    @Override
     public String generateToken(UUID userId, String username, Collection<String> roles) {
         long now = System.currentTimeMillis();
 

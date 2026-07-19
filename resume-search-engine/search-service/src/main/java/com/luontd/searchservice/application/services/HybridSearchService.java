@@ -3,7 +3,7 @@ package com.luontd.searchservice.application.services;
 import com.luontd.searchservice.application.dto.CandidateResponse;
 import com.luontd.searchservice.infrastructure.elasticsearch.CandidateDocument;
 import com.luontd.searchservice.infrastructure.elasticsearch.CandidateSearchRepository;
-import com.luontd.searchservice.infrastructure.weaviate.WeaviateSimilarityClient;
+import com.luontd.searchservice.application.interfaces.IWeaviateSimilarityPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -25,7 +25,7 @@ public class HybridSearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final CandidateSearchRepository candidateSearchRepository;
-    private final WeaviateSimilarityClient weaviateClient;
+    private final IWeaviateSimilarityPort weaviateClient;
 
     private static final int RRF_K = 60;
     private static final int FETCH_LIMIT = 50;

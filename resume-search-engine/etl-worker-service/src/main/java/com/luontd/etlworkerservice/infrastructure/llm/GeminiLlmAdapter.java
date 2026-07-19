@@ -27,8 +27,7 @@ import java.util.Map;
 @Component
 public class GeminiLlmAdapter implements ILlmPort {
 
-    private static final String GEMINI_GENERATE_PATH =
-            "/v1beta/models/{model}:generateContent?key={apiKey}";
+
 
     private static final TypeReference<Map<String, Object>> MAP_TYPE_REF =
             new TypeReference<>() {};
@@ -37,18 +36,21 @@ public class GeminiLlmAdapter implements ILlmPort {
     private final ObjectMapper objectMapper;
     private final String apiKey;
     private final String model;
+    private final String generatePath;
     private final String templateJson;
 
     public GeminiLlmAdapter(
             @Qualifier("geminiRestClient") RestClient restClient,
             ObjectMapper objectMapper,
             @Value("${app.llm.api-key}") String apiKey,
-            @Value("${app.llm.model}") String model
+            @Value("${app.llm.model}") String model,
+            @Value("${app.llm.generate-path}") String generatePath
     ) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
         this.apiKey = apiKey;
         this.model = model;
+        this.generatePath = generatePath;
         this.templateJson = loadTemplate();
     }
 
@@ -61,7 +63,7 @@ public class GeminiLlmAdapter implements ILlmPort {
             log.info("Gửi request đến Gemini model: {}", model);
 
             String responseBody = restClient.post()
-                    .uri(GEMINI_GENERATE_PATH, model, apiKey)
+                    .uri(generatePath, model, apiKey)
                     .body(requestBody)
                     .retrieve()
                     .body(String.class);

@@ -23,6 +23,7 @@ public class GeminiLlmConfig {
         return RestClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader("Content-Type", "application/json")
+                .requestFactory(new org.springframework.http.client.JdkClientHttpRequestFactory())
                 .build();
     }
 }

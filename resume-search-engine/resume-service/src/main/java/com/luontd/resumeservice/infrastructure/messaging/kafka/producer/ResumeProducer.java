@@ -12,8 +12,11 @@ public class ResumeProducer implements IResumeEventPublisher {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
+    @org.springframework.beans.factory.annotation.Value("${kafka.topic.cv-uploaded}")
+    private String processCvTopic;
+
     @Override
     public void publish(ResumeCreatedEvent event) {
-        kafkaTemplate.send("resume-topic", event);
+        kafkaTemplate.send(processCvTopic, event);
     }
 }
