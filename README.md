@@ -15,6 +15,9 @@ Dự án được thiết kế theo kiến trúc Microservices, bao gồm các t
 - **`etl-worker-service`**: Xử lý ngầm (background jobs) để trích xuất dữ liệu từ CV (PDF/Word), biến đổi và chuẩn bị dữ liệu cho các công cụ tìm kiếm.
 - **`search-service`**: Cung cấp API tìm kiếm Hybrid (kết hợp giữa tìm kiếm từ khóa truyền thống và tìm kiếm theo ngữ nghĩa - vector search).
 
+### AI/ML Services (Python)
+- **`embedding-service`**: Dịch vụ API độc lập (FastAPI, SentenceTransformers) sử dụng model `Qwen/Qwen3-Embedding-0.6B` để chuyển đổi văn bản thành vector embeddings phục vụ tìm kiếm ngữ nghĩa.
+
 ### Frontend (React & Vite)
 - Nằm trong thư mục `frontend/`.
 - Được xây dựng với **React 19**, **TypeScript**, và **Tailwind CSS 4**.
@@ -30,6 +33,7 @@ Hệ thống sử dụng các công nghệ hạ tầng hiện đại, được c
 ## 🚀 Yêu cầu hệ thống (Prerequisites)
 - [Docker](https://www.docker.com/) & Docker Compose
 - [Java 21](https://jdk.java.net/21/)
+- [Python 3.11+](https://www.python.org/)
 - [Maven](https://maven.apache.org/) (hoặc sử dụng `mvnw` có sẵn trong dự án)
 - [Node.js](https://nodejs.org/) (phiên bản 20+ khuyến nghị)
 
@@ -59,7 +63,20 @@ Và sử dụng Maven wrapper để build/chạy từng dịch vụ, ví dụ:
 # Tương tự cho các dịch vụ khác...
 ```
 
-### 3. Khởi chạy Frontend
+### 3. Khởi chạy AI/ML Services (Embedding)
+Đi vào thư mục `embedding-service`, cài đặt thư viện và chạy:
+```bash
+cd embedding-service
+python -m venv venv
+# Kích hoạt venv: 
+# Windows: venv\Scripts\activate
+# Linux/Mac: source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 9100
+```
+*(Hoặc xem hướng dẫn chạy qua Docker trong `embedding-service/README.md`)*
+
+### 4. Khởi chạy Frontend
 Đi vào thư mục `frontend/`, cài đặt các phụ thuộc và chạy ứng dụng React:
 ```bash
 cd frontend
@@ -72,6 +89,7 @@ npm run dev
 ```text
 ResumeSearchEngine/
 ├── frontend/                 # Ứng dụng ReactJS UI
+├── embedding-service/        # Dịch vụ Python API cho Text Embeddings (FastAPI)
 ├── resume-search-engine/     # Các Spring Boot Microservices
 │   ├── api-gateway/
 │   ├── auth-service/
