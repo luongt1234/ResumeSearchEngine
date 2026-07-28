@@ -64,3 +64,5 @@ yarn-error.log*
 *.log
 tmp/
 temp/
+
+.data
