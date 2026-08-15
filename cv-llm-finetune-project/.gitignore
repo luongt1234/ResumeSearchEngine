@@ -1,0 +1,44 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Datasets (only ignore intermediate files if necessary, keep the raw folder structure)
+data/processed/*.jsonl
+data/processed/*.csv
+data/processed/*.json
+data/processed/*.txt
+data/processed/*.pdf
+
+data/raw/*.jsonl
+data/raw/*.csv
+data/raw/*.json
+data/raw/*.txt
+data/raw/*.pdf
+
+# data/processed/train_dataset_sharegpt.json # Can be committed or ignored depending on preference
+
+# Model checkpoints & large exports
+outputs/
+exports/lora_adapters/*
+!exports/lora_adapters/.gitkeep
+exports/gguf_model/*.gguf
+!exports/gguf_model/.gitkeep
+
+# IDEs & System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+

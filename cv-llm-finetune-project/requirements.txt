@@ -1,0 +1,30 @@
+# ==============================================================================
+#  requirements.txt  –  CV LLM Fine-Tuning Project (Local Development)
+# ==============================================================================
+#
+#  Lưu ý: Các thư viện dùng để TRAIN model (transformers, trl, peft,
+#  bitsandbytes...) được cài trực tiếp trong Kaggle Notebook qua pip
+#  cell đầu tiên. File này chỉ dành cho môi trường local (preprocessing,
+#  inference test).
+# ==============================================================================
+
+# ── Bóc tách & tiền xử lý CV offline ─────────────────────────────────────────
+spacy>=3.8.0
+pandas>=2.0.0
+tqdm>=4.60.0
+numpy>=1.24.0
+
+# ── Inference model đã fine-tune cục bộ (script 02_test_local_model.py) ───────
+# Cài đặt CUDA-enabled torch:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu118
+torch>=2.0.0
+transformers>=4.45.0
+peft>=0.13.0                  # Load LoRA adapters từ Kaggle output
+
+# ── Chạy inference GGUF model (tuỳ chọn) ─────────────────────────────────────
+# Lưu ý: Cài llama-cpp-python trên Windows có thể yêu cầu MSVC Build Tools.
+llama-cpp-python>=0.2.0
+
+# ── Dùng cho các script phụ trợ ───────────────────────────────────────────────
+requests>=2.30.0
+pydantic>=2.0.0
